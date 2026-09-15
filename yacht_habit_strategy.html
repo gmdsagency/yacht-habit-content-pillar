@@ -1,0 +1,887 @@
+<title>Yacht Habit Strategy</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#1a1060;font-family:'Montserrat',sans-serif}
+:root{
+  --blue:#3EA8E5;
+  --royal:#4B6BD6;
+  --purple:#7B3DB0;
+  --dark-purple:#3D1B7A;
+  --navy:#1a1060;
+  --black:#222;
+  --light-bg:#F0F2F8;
+  --white:#fff;
+  --muted:#6B7280;
+  --text-dark:#1C1B4B;
+  --grad:linear-gradient(120deg,#3EA8E5 0%,#4B6BD6 45%,#7B3DB0 100%);
+  --grad-card:linear-gradient(135deg,#4B6BD6 0%,#7B3DB0 100%);
+  --grad-light:linear-gradient(120deg,#3EA8E5 0%,#7B3DB0 100%);
+}
+
+/* Deck */
+.deck{position:relative;width:100%;height:100%;overflow:hidden}
+.slide{
+  position:absolute;inset:0;overflow:hidden;
+  transform:translateX(100%);
+  transition:transform .5s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;
+}
+.slide.active{transform:translateX(0)}
+.slide.past{transform:translateX(-100%)}
+.dark{background:var(--grad);color:#fff}
+.light{background:var(--light-bg);color:var(--text-dark)}
+
+/* Blobs — signature GMDS shape */
+.blob{position:absolute;border-radius:50%;pointer-events:none;z-index:0}
+.blob-dark-bl{bottom:-120px;left:-100px;width:420px;height:420px;background:rgba(255,255,255,.09);border-radius:60% 40% 55% 45%/50% 60% 40% 50%}
+.blob-dark-tr{top:-80px;right:-80px;width:260px;height:260px;background:rgba(255,255,255,.05);border-radius:50%}
+.blob-light-br{bottom:-100px;right:-100px;width:380px;height:380px;background:rgba(62,168,229,.12);border-radius:50% 60% 40% 55%/55% 45% 65% 35%}
+.blob-light-tl{top:-60px;left:-60px;width:200px;height:200px;background:rgba(123,61,176,.07);border-radius:50%}
+
+/* Content layer */
+.content{position:relative;z-index:1;flex:1;padding:44px 56px 36px;display:flex;flex-direction:column}
+
+/* Footer */
+.footer{
+  position:absolute;bottom:20px;left:56px;z-index:2;
+  font-family:'Montserrat',sans-serif;font-size:7.5px;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;opacity:.6
+}
+.dark .footer{color:#fff}
+.light .footer{color:var(--navy)}
+
+/* Gradient top bar for light slides */
+.grad-bar{
+  background:var(--grad);
+  padding:0 56px;height:6px;flex-shrink:0;
+}
+
+/* Eyebrow pills */
+.eyebrow{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
+  padding:6px 16px;border-radius:100px;align-self:flex-start;margin-bottom:16px
+}
+.eyebrow-blue{background:var(--blue);color:#fff}
+.eyebrow-purple{background:var(--purple);color:#fff}
+.eyebrow-dark{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25)}
+.eyebrow-light{background:rgba(75,107,214,.12);color:var(--royal)}
+.eyebrow-gold{background:#C9A84C;color:#fff}
+
+/* Typography */
+.display{
+  font-family:'Montserrat',sans-serif;
+  font-size:clamp(36px,5vw,66px);
+  font-weight:800;line-height:1.1;letter-spacing:-.5px;text-wrap:balance
+}
+.dark .display{color:#fff}
+.light .display{color:var(--text-dark)}
+
+.heading{
+  font-family:'Montserrat',sans-serif;
+  font-size:clamp(22px,2.8vw,36px);
+  font-weight:800;line-height:1.15;text-wrap:balance
+}
+.dark .heading{color:#fff}
+.light .heading{color:var(--text-dark)}
+
+.subhead{font-size:13px;font-weight:600;letter-spacing:.3px;margin-bottom:6px}
+.dark .subhead{color:rgba(255,255,255,.75)}
+.light .subhead{color:var(--royal)}
+
+.body-text{font-size:12.5px;font-weight:400;line-height:1.7}
+.dark .body-text{color:rgba(255,255,255,.8)}
+.light .body-text{color:var(--muted)}
+
+/* Large number bg (pillar dividers) */
+.big-num{
+  position:absolute;right:-10px;bottom:-30px;z-index:0;
+  font-size:clamp(180px,25vw,280px);font-weight:900;line-height:1;
+  color:rgba(255,255,255,.07);letter-spacing:-10px;pointer-events:none;user-select:none
+}
+
+/* Gradient cards */
+.card-grad{
+  background:var(--grad-card);border-radius:16px;padding:22px 24px;color:#fff;
+  display:flex;flex-direction:column;gap:8px;
+}
+.card-light{
+  background:#fff;border-radius:16px;padding:22px 24px;
+  box-shadow:0 2px 16px rgba(75,107,214,.1);
+  display:flex;flex-direction:column;gap:8px;
+}
+.card-title{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.card-body{font-size:12px;line-height:1.65;font-weight:400}
+.card-grad .card-title{color:rgba(255,255,255,.7)}
+.card-grad .card-body{color:rgba(255,255,255,.9)}
+.card-light .card-title{color:var(--royal)}
+.card-light .card-body{color:var(--muted)}
+
+/* Pill stat */
+.stat-pill{
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+  border-radius:14px;padding:18px 24px;text-align:center;
+}
+.stat-num{font-size:28px;font-weight:800;color:#fff}
+.stat-label{font-size:10px;font-weight:600;color:rgba(255,255,255,.7);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
+
+/* Divider line */
+.divider{width:100%;height:1px;background:rgba(255,255,255,.15);margin:12px 0}
+.divider-light{width:100%;height:1px;background:rgba(75,107,214,.15);margin:12px 0}
+
+/* Grid helpers */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px}
+.col-span-2{grid-column:span 2}
+
+/* Progress bar */
+#progress-bar{
+  position:fixed;top:0;left:0;height:4px;z-index:100;
+  background:var(--grad-light);transition:width .4s ease;
+}
+
+/* Nav controls */
+.nav-pill{
+  position:fixed;bottom:24px;right:32px;z-index:100;
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,.15);backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.25);border-radius:100px;
+  padding:10px 18px;
+}
+.nav-pill button{
+  background:none;border:none;color:#fff;font-size:16px;cursor:pointer;
+  padding:2px 6px;border-radius:50%;transition:background .2s;line-height:1;
+}
+.nav-pill button:hover{background:rgba(255,255,255,.2)}
+.nav-pill button:disabled{opacity:.3;cursor:default}
+#counter{font-size:11px;font-weight:600;color:#fff;letter-spacing:.5px;min-width:40px;text-align:center}
+
+/* TOC item */
+.toc-item{
+  display:flex;align-items:center;gap:16px;padding:14px 18px;
+  border-radius:12px;cursor:pointer;transition:background .2s;
+  border:1px solid rgba(75,107,214,.15);
+}
+.toc-item:hover{background:rgba(75,107,214,.08)}
+.toc-num{
+  font-size:14px;font-weight:800;color:var(--blue);
+  min-width:28px;
+}
+.toc-label{font-size:12px;font-weight:600;color:var(--text-dark)}
+
+/* Table */
+.data-table{width:100%;border-collapse:collapse;font-size:11px}
+.data-table th{
+  background:var(--grad);color:#fff;font-weight:700;
+  padding:10px 12px;text-align:left;font-size:10px;letter-spacing:.5px;text-transform:uppercase
+}
+.data-table td{padding:9px 12px;border-bottom:1px solid rgba(75,107,214,.1);color:var(--text-dark)}
+.data-table tr:nth-child(even) td{background:rgba(75,107,214,.04)}
+.data-table tr:last-child td{border-bottom:none}
+.check{color:#22c55e;font-weight:700}
+.cross{color:#ef4444;font-weight:700}
+
+/* Calendar grid */
+.cal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.cal-day{background:#fff;border-radius:12px;padding:14px;box-shadow:0 2px 10px rgba(75,107,214,.08)}
+.cal-day-name{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--royal);margin-bottom:8px}
+.cal-post{
+  background:var(--grad-card);color:#fff;border-radius:8px;
+  padding:8px 10px;font-size:10px;font-weight:600;line-height:1.4;margin-bottom:6px
+}
+.cal-post:last-child{margin-bottom:0}
+.cal-post.story{background:linear-gradient(135deg,#3EA8E5,#4B6BD6)}
+.cal-post.reel{background:linear-gradient(135deg,#7B3DB0,#4B6BD6)}
+.cal-post.carousel{background:linear-gradient(135deg,#4B6BD6,#3EA8E5)}
+
+/* ManyChat keyword card */
+.kw-card{
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+  border-radius:16px;padding:26px 28px;
+}
+.kw-tag{
+  display:inline-block;background:rgba(255,255,255,.2);
+  color:#fff;font-size:18px;font-weight:800;letter-spacing:2px;
+  padding:8px 20px;border-radius:100px;margin-bottom:14px;border:1px solid rgba(255,255,255,.3)
+}
+.kw-desc{font-size:11.5px;line-height:1.65;color:rgba(255,255,255,.85);font-weight:400}
+
+/* Color swatch */
+.swatch-row{display:flex;gap:12px}
+.swatch{border-radius:12px;flex:1;height:60px;display:flex;align-items:flex-end;padding:8px 10px}
+.swatch-label{font-size:8.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#fff;opacity:.9}
+
+/* Step card */
+.step-card{
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+  border-radius:14px;padding:20px 22px;
+}
+.step-num{font-size:11px;font-weight:800;color:var(--blue);letter-spacing:1px;margin-bottom:6px}
+.step-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px}
+.step-body{font-size:11px;color:rgba(255,255,255,.75);line-height:1.6}
+
+/* Responsive */
+@media(max-width:640px){
+  .content{padding:28px 24px 24px}
+  .grid-3,.grid-4{grid-template-columns:1fr}
+  .grid-2{grid-template-columns:1fr}
+  .cal-grid{grid-template-columns:1fr 1fr}
+  .display{font-size:clamp(28px,8vw,48px)}
+}
+</style>
+
+<div id="progress-bar" style="width:5%"></div>
+
+<div class="deck">
+
+<!-- SLIDE 1: COVER -->
+<div class="slide dark active" id="s1">
+  <div class="blob blob-dark-bl"></div>
+  <div class="blob blob-dark-tr"></div>
+  <div class="content" style="justify-content:center;align-items:flex-start;gap:0">
+    <div class="eyebrow eyebrow-dark" style="margin-bottom:28px">⛵ Prepared by GMDS Agency</div>
+    <div class="display" style="max-width:700px;margin-bottom:20px">Yacht Habit<br>Social Media<br>Content Strategy</div>
+    <div style="width:60px;height:3px;background:var(--blue);border-radius:2px;margin-bottom:20px"></div>
+    <p class="body-text" style="max-width:480px;font-size:13px">A full-funnel Instagram strategy to position Yacht Habit as the go-to trilingual luxury yacht brokerage for English, Spanish &amp; Russian-speaking buyers across the Americas and beyond.</p>
+    <div style="display:flex;gap:20px;margin-top:32px;flex-wrap:wrap">
+      <div style="text-align:center">
+        <div style="font-size:22px;font-weight:800;color:#fff">5</div>
+        <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,.6);letter-spacing:2px;text-transform:uppercase;margin-top:2px">Content Pillars</div>
+      </div>
+      <div style="width:1px;background:rgba(255,255,255,.2)"></div>
+      <div style="text-align:center">
+        <div style="font-size:22px;font-weight:800;color:#fff">20+</div>
+        <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,.6);letter-spacing:2px;text-transform:uppercase;margin-top:2px">Posts / Month</div>
+      </div>
+      <div style="width:1px;background:rgba(255,255,255,.2)"></div>
+      <div style="text-align:center">
+        <div style="font-size:22px;font-weight:800;color:#fff">4</div>
+        <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,.6);letter-spacing:2px;text-transform:uppercase;margin-top:2px">ManyChat Keywords</div>
+      </div>
+      <div style="width:1px;background:rgba(255,255,255,.2)"></div>
+      <div style="text-align:center">
+        <div style="font-size:22px;font-weight:800;color:#fff">3</div>
+        <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,.6);letter-spacing:2px;text-transform:uppercase;margin-top:2px">Languages: EN / ES / RU</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">WWW.GMDS.AGENCY</div>
+</div>
+
+<!-- SLIDE 2: MEETING AGENDA -->
+<div class="slide light" id="s2">
+  <div class="grad-bar"></div>
+  <div class="blob blob-light-br"></div>
+  <div class="blob blob-light-tl"></div>
+  <div class="content">
+    <div class="eyebrow eyebrow-light">📋 Meeting Guide</div>
+    <div class="heading" style="margin-bottom:6px">Meeting Agenda</div>
+    <p class="body-text" style="margin-bottom:18px;font-size:12px">Focal points for this session — use this slide as a guide to run the presentation in order.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;flex:1">
+      <div class="toc-item" onclick="goTo(2)" style="background:rgba(62,168,229,.06);border-color:rgba(62,168,229,.25)">
+        <span class="toc-num" style="color:var(--blue)">01</span>
+        <div><div class="toc-label">Yacht Habit Visual Identity</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Color palette, typography and tone of voice</div></div>
+      </div>
+      <div class="toc-item" onclick="goTo(3)" style="background:rgba(62,168,229,.06);border-color:rgba(62,168,229,.25)">
+        <span class="toc-num" style="color:var(--blue)">02</span>
+        <div><div class="toc-label">Strategy Overview</div><div style="font-size:10px;color:var(--muted);margin-top:2px">The 5 pillars, posting frequency and content mix</div></div>
+      </div>
+      <div class="toc-item" onclick="goTo(4)" style="background:rgba(62,168,229,.06);border-color:rgba(62,168,229,.25)">
+        <span class="toc-num" style="color:var(--blue)">03</span>
+        <div><div class="toc-label">The 5 Content Pillars</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Dream Boats · Broker Intelligence · SOLD Stories · International Buyers · Behind the Broker</div></div>
+      </div>
+      <div class="toc-item" onclick="goTo(14)" style="background:rgba(62,168,229,.06);border-color:rgba(62,168,229,.25)">
+        <span class="toc-num" style="color:var(--blue)">04</span>
+        <div><div class="toc-label">Competitive Analysis</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Competitor benchmarks and market opportunities</div></div>
+      </div>
+      <div class="toc-item" onclick="goTo(16)" style="background:rgba(62,168,229,.06);border-color:rgba(62,168,229,.25)">
+        <span class="toc-num" style="color:var(--blue)">05</span>
+        <div><div class="toc-label">Editorial Calendar &amp; ManyChat</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Weekly posting rhythm and DM automations</div></div>
+      </div>
+      <div class="toc-item" style="background:rgba(201,168,76,.08);border-color:rgba(201,168,76,.35);cursor:default">
+        <span class="toc-num" style="color:#C9A84C">💬</span>
+        <div><div class="toc-label" style="color:#8a6f00">Q&amp;A &amp; Agreements</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Align on expectations, timelines and next steps</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">WWW.GMDS.AGENCY</div>
+</div>
+
+<!-- SLIDE 3: VISUAL IDENTITY -->
+<div class="slide dark" id="s3">
+  <div class="blob blob-dark-bl"></div>
+  <div class="blob blob-dark-tr"></div>
+  <div class="content" style="gap:16px">
+    <div class="eyebrow eyebrow-dark">Brand Direction</div>
+    <div class="heading" style="margin-bottom:0">Yacht Habit Visual Identity</div>
+    <div class="grid-3" style="margin-top:8px">
+      <div class="swatch" style="background:#1B3A6B"><span class="swatch-label">Navy · #1B3A6B</span></div>
+      <div class="swatch" style="background:#2C6FAD"><span class="swatch-label">Ocean · #2C6FAD</span></div>
+      <div class="swatch" style="background:#4DA8DA"><span class="swatch-label">Sky · #4DA8DA</span></div>
+      <div class="swatch" style="background:#C9A84C"><span class="swatch-label">Gold · #C9A84C</span></div>
+      <div class="swatch" style="background:#F5F5F5;"><span class="swatch-label" style="color:var(--muted)">Light · #F5F5F5</span></div>
+      <div class="swatch" style="background:#0A0A0A"><span class="swatch-label">Black · #0A0A0A</span></div>
+    </div>
+    <div class="grid-2" style="margin-top:4px">
+      <div class="card-grad">
+        <div class="card-title">Display Font · Yacht Habit</div>
+        <div style="font-family:'Playfair Display',Georgia,serif;font-size:26px;font-weight:900;color:#fff;letter-spacing:-.3px;margin:6px 0 2px">Playfair Display</div>
+        <div class="card-body" style="font-family:'Playfair Display',serif;font-style:italic;font-size:13px;color:rgba(255,255,255,.75)">Luxury · Elegance · Authority</div>
+        <div class="card-body" style="font-size:11px;margin-top:4px">Headlines, display text, slide titles</div>
+      </div>
+      <div class="card-grad">
+        <div class="card-title">Body Font · Yacht Habit</div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:24px;font-weight:500;color:#fff;margin:6px 0 2px">DM Sans</div>
+        <div class="card-body" style="font-family:'DM Sans',sans-serif;font-size:13px;color:rgba(255,255,255,.75)">Clean · Modern · Readable</div>
+        <div class="card-body" style="font-size:11px;margin-top:4px">Captions, body copy, UI labels</div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:14px 18px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:8px">Tone of Voice</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <span style="background:rgba(255,255,255,.15);color:#fff;font-size:10px;font-weight:600;padding:5px 12px;border-radius:100px">Aspirational</span>
+        <span style="background:rgba(255,255,255,.15);color:#fff;font-size:10px;font-weight:600;padding:5px 12px;border-radius:100px">Expert</span>
+        <span style="background:rgba(255,255,255,.15);color:#fff;font-size:10px;font-weight:600;padding:5px 12px;border-radius:100px">Trilingual EN · ES · RU</span>
+        <span style="background:rgba(255,255,255,.15);color:#fff;font-size:10px;font-weight:600;padding:5px 12px;border-radius:100px">Trustworthy</span>
+        <span style="background:rgba(255,255,255,.15);color:#fff;font-size:10px;font-weight:600;padding:5px 12px;border-radius:100px">Discreet Luxury</span>
+      </div>
+    </div>
+  </div>
+  <div class="footer">WWW.GMDS.AGENCY</div>
+</div>
+
+<!-- SLIDE 4: STRATEGY OVERVIEW -->
+<div class="slide dark" id="s4">
+  <div class="blob blob-dark-bl"></div>
+  <div class="content" style="gap:18px">
+    <div class="eyebrow eyebrow-dark">The Plan</div>
+    <div class="heading" style="margin-bottom:0">Strategy Overview</div>
+    <div class="grid-4">
+      <div class="stat-pill"><div class="stat-num">5</div><div class="stat-label">Pillars</div></div>
+      <div class="stat-pill"><div class="stat-num">21</div><div class="stat-label">Posts/Mo</div></div>
+      <div class="stat-pill"><div class="stat-num">3×</div><div class="stat-label">Weekly</div></div>
+      <div class="stat-pill"><div class="stat-num">3</div><div class="stat-label">Languages</div></div>
+    </div>
+    <div class="grid-3">
+      <div class="card-grad">
+        <div class="card-title">🎯 Goal</div>
+        <div class="card-body">Position Yacht Habit as the #1 trilingual luxury yacht brokerage on Instagram for buyers in the Americas and Eastern Europe.</div>
+      </div>
+      <div class="card-grad">
+        <div class="card-title">👤 Audience</div>
+        <div class="card-body">HNW English, Spanish &amp; Russian speakers, 35–65, in Miami, LATAM, Caribbean, and Eastern Europe. First-time buyers and seasoned sailors.</div>
+      </div>
+      <div class="card-grad">
+        <div class="card-title">📲 Platform Focus</div>
+        <div class="card-body">Instagram-first: Reels for discovery, Carousels for education, Stories for daily trust-building + ManyChat automation.</div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:16px 20px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:10px">Content Mix</div>
+      <div style="display:flex;gap:24px;flex-wrap:wrap">
+        <div><span style="font-size:20px;font-weight:800;color:#fff">40%</span> <span style="font-size:10px;color:rgba(255,255,255,.65);font-weight:600">Reels</span></div>
+        <div><span style="font-size:20px;font-weight:800;color:var(--blue)">30%</span> <span style="font-size:10px;color:rgba(255,255,255,.65);font-weight:600">Carousels</span></div>
+        <div><span style="font-size:20px;font-weight:800;color:#C9A84C">20%</span> <span style="font-size:10px;color:rgba(255,255,255,.65);font-weight:600">Static Posts</span></div>
+        <div><span style="font-size:20px;font-weight:800;color:rgba(255,255,255,.5)">10%</span> <span style="font-size:10px;color:rgba(255,255,255,.65);font-weight:600">Stories</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">WWW.GMDS.AGENCY</div>
+</div>
+
+<!-- SLIDE 5: PILLAR 01 DIVIDER -->
+<div class="slide dark" id="s5">
+  <div class="blob blob-dark-bl"></div>
+  <div class="big-num">01</div>
+  <div class="content" style="justify-content:center;gap:16px">
+    <div class="eyebrow eyebrow-dark">Content Pillar 01</div>
+    <div class="display" style="max-width:600px">Dream Boats</div>
+    <div style="width:50px;height:3px;background:var(--blue);border-radius:2px"></div>
+    <p class="body-text" style="max-width:500px;font-size:13.5px">Aspirational vessel showcases that make followers stop scrolling and start dreaming — the emotional hook of the entire account.</p>
+    <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap">
+      <span style="background:rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:600;padding:6px 14px;border-radius:100px;border:1px solid rgba(255,255,255,.2)">Reels 60%</span>
+      <span style="background:rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:600;padding:6px 14px;border-radius:100px;border:1px solid rgba(255,255,255,.2)">Carousels 25%</span>
+      <span style="background:rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:600;padding:6px 14px;border-radius:100px;border:1px solid rgba(255,255,255,.2)">Statics 15%</span>
+    </div>
+  </div>
+  <div class="footer">WWW.GMDS.AGENCY</div>
+</div>
+
+<!-- SLIDE 6: PILLAR 01 DETAIL -->
+<div class="slide light" id="s6">
+  <div class="grad-bar"></div>
+  <div class="blob blob-light-br"></div>
+  <div class="content" style="gap:16px">
+    <div class="eyebrow eyebrow-light">Pillar 01 · Dream Boats</div>
+    <div class="heading" style="margin-bottom:0">What We Post</div>
+    <div class="grid-3">
+      <div class="card-light">
+        <div class="card-title">🎬 Hero Reels</div>
+        <div class="card-body">Cinematic walkthroughs of featured yachts. Sunset shots, bow views, interior details. Hook: price reveal at the end.</div>
+      </div>
+      <div class="card-light">
+        <div class="card-title">📸 Beauty Carousels</div>
+        <div class="card-body">"5 reasons to love this 55' Azimut" — slide-by-slide feature breakdown. Drives saves &amp; shares.</div>
+      </div>
+      <div class="card-light">
+        <div class="card-title">💬 ManyChat Trigger</div>
+        <div class="card-body">Caption CTA: "Comment BOAT for specs + asking price delivered directly to your DMs."</div>
+      </div>
+    </div>
+    <div class="grid-2" style="align-items:start">
+      <div class="card-grad">
+        <div class="card-title">Sample Content Ideas</div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
+          <div style="font-size:11.5px;color:rgba(255,255,255,.9)">"Your next yacht just landed in Miami 🌊"</div>
+          <div style="font-size:11.5px;color:rgba(255,255,255,.9)">"Under $500K — here's what you can actually afford"</div>
+          <div style="font-size:11.5px;color:rgba(255,255,255,.9)">"3 yachts, 3 lifestyles — which is yours?"</div>
+          <div style="font-size:11.5px;color:rgba(255,255,255,.9)">"Sunreef 60 catamaran tour — full walkthrough"</div>
+        </div>
+      </div>
+      <div class="card-light" style="padding:10px;display:flex;flex-direction:column;gap:6px">
+        <div class="card-title" style="font-size:9.5px;letter-spacing:1.5px">📱 COMPETITOR REFERENCE · @ikonicyachts</div>
+        <div style="font-size:10.5px;color:var(--muted);line-height:1.5;font-style:italic">"MOONRAKER 156ft — aerial listing walkthrough. This is exactly the cinematic Dream Boats format we'll produce for Yacht Habit."</div>
+        <a href="https://www.instagram.com/reel/Db9IPJRSLAn/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:var(--grad);color:#fff;font-size:10px;font-weight:700;padding:7px 14px;border-radius:100px;text-decoration:none;align-self:flex-start;margin-top:4px">▶ View Reel on Instagram</a>
+        <div style="font-size:9px;color:var(--muted);margin-top:2px">Hero listing reel · IKONIC Yachts · 1M+ views</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">WWW.GMDS.AGENCY</div>
+</div>
+
+<!-- SLIDE 7: PILLAR 02 DIVIDER -->
+<div class="slide dark" id="s7">
+  <div class="blob blob-dark-bl"></div>
+  <div class="big-num">02</div>
+  <div class="content" style="justify-content:center;gap:16px">
+    <div class="eyebrow eyebrow-dark">Content Pillar 02</div>
+    <div class="display" style="max-width:600px">Broker Intelligence</div>
+    <div style="width:50px;height:3px;background:var(--blue);border-radius:2px"></div>
+    <p class="body-text" style="max-width:500px;font-size:13.5px">Expert market education that establishes Yacht Habit as the authority voice in luxury yacht brokerage — turning followers into informed, trusting buyers.</p>
+    <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap">
+      <span style="background:rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:600;padding:6px 14px;border-radius:100px;border:1px solid rgba(255,255,255,.2)">Carousels 50%</span>
+      <span style="background:rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:600;padding:6px 14px;border-radius:100px;border:1px solid rgba(255,255,255,.2)">Reels 30%</span>
+      <span style="background:rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:600;padding:6px 14px;border-radius:100px;border:1px solid rgba(255,255,255,.2)">Statics 20%</span>
+    </div>
+  </div>
+  <div class="footer">WWW.GMDS.AGENCY</div>
+</div>
+
+<!-- SLIDE 8: PILLAR 02 DETAIL -->
+<div class="slide light" id="s8">
+  <div class="grad-bar"></div>
+  <div class="blob blob-light-br"></div>
+  <div class="content" style="gap:16px">
+    <div class="eyebrow eyebrow-light">Pillar 02 · Broker Intelligence</div>
+    <div class="heading" style="margin-bottom:0">What We Post</div>
+    <div class="grid-3">
+      <div class="card-light">
+        <div class="card-title">📊 Market Insights</div>
+        <div class="card-body">"Yacht prices are dropping — here's what that means for buyers in 2025." Data-backed takes with clear visuals.</div>
+      </div>
+      <div class="card-light">
+        <div class="card-title">🎓 Buying Guides</div>
+        <div class="card-body">Step-by-step carousels: "How to buy a yacht in Florida in 5 steps." Save-bait educational content.</div>
+      </div>
+      <div class="card-light">
+        <div class="card-title">⚖️ Comparisons</div>
+        <div class="card-body">"Azimut vs. Sunseeker at the same price" — side-by-side formats that drive massive engagement.</div>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="card-grad">
+        <div class="card-title">Trilingual Strategy</div>
+        <div class="card-body">Educational content runs in EN, ES &amp; RU — dual-language captions or alternate-language posts for maximum LATAM &amp; international reach.</div>
+      </div>
+      <div class="card-grad">
+        <div class="card-title">Hook Formula</div>
+        <div class="card-body">"Most people don't know this before buying a yacht…" — curiosity-gap openers that outperform traditional posts by 3×.</div>
+      </div>
+      <div class="card-light" style="padding:10px;display:flex;flex-direction:column;gap:6px">
+        <div class="card-title" style="font-size:9.5px;letter-spacing:1.5px">📱 COMPETITOR REFERENCE · @ikonicyachts</div>
+        <div style="font-size:10.5px;color:var(--muted);line-height:1.5;font-style:italic">"AJ Blackmon shares 37% market stat + PATIENCE listing. Broker-led market intel — the exact Broker Intelligence format."</div>
+        <a href="https://www.instagram.com/reel/Dcy-buzhY9N_SS2Dl5Q9ovtCLKLOY-XuKN-hMc0/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:var(--grad);color:#fff;font-size:10px;font-weight:700;padding:7px 14px;border-radius:100px;text-decoration:none;align-self:flex-start;margin-top:4px">▶ View Reel on Instagram</a>
+        <div style="font-size:9px;color:var(--muted);margin-top:2px">Broker insight reel · IKONIC Yachts</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">WWW.GMDS.AGENCY</div>
+</div>
+
+<!-- SLIDE 9: PILLAR 03 DIVIDER -->
+<div class="slide dark" id="s9">
+  <div class="blob blob-dark-bl"></div>
+  <div class="big-num">03</div>
+  <div class="content" style="justify-content:center;gap:16px">
+    <div class="eyebrow eyebrow-dark">Content Pillar 03</div>
+    <div class="display" style="max-width:600px">SOLD Stories</div>
+    <div style="width:50px;height:3px;background:#C9A84C;border-radius:2px"></div>
+    <p class="body-text" style="max-width:500px;font-size:13.5px">Real transaction stories that build undeniable social proof — the most powerful trust signal for high-ticket buyers scrolling on Instagram.</p>
+    <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap">
+      <span style="background:rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:600;padding:6px 14px;border-radius:100px;border:1px solid rgba(255,255,255,.2)">Reels 50%</span>
+      <span style="background:rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:600;padding:6px 14px;border-radius:100px;border:1px solid rgba(255,255,255,.2)">Carousels 30%</span>
+      <span style="background:rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:600;padding:6px 14px;border-radius:100px;border:1px solid rgba(255,255,255,.2)">Statics 20%</span>
+    </div>
+  </div>
+  <div class="footer">WWW.GMDS.AGENCY</div>
+</div>
+
+<!-- SLIDE 10: PILLAR 03 DETAIL -->
+<div class="slide light" id="s10">
+  <div class="grad-bar"></div>
+  <div class="blob blob-light-br"></div>
+  <div class="content" style="gap:16px">
+    <div class="eyebrow eyebrow-light">Pillar 03 · SOLD Stories</div>
+    <div class="heading" style="margin-bottom:0">What We Post</div>
+    <div class="grid-3">
+      <div class="card-light">
+        <div class="card-title">🏆 Deal Reveals</div>
+        <div class="card-body">"SOLD in 12 days" posts with vessel name, size, and price (if client approves). Watermark image with SOLD banner overlay.</div>
+      </div>
+      <div class="card-light">
+        <div class="card-title">🎙️ Client Spotlights</div>
+        <div class="card-body">Short-form video testimonials on the dock. Client speaks — broker narrates. Authentic, unscripted, powerful.</div>
+      </div>
+      <div class="card-light">
+        <div class="card-title">📈 Numbers Posts</div>
+        <div class="card-body">"X yachts sold in Q3 — here's what we learned." Aggregated data builds macro-level credibility.</div>
+      </div>
+    </div>
+    <div class="grid-2" style="align-items:start">
+      <div class="card-grad">
+        <div class="card-title">ManyChat Trigger</div>
+        <div class="card-body" style="font-size:12.5px">Caption: "Comment <strong>SOLD</strong> to see all recently closed listings + what your yacht could sell for in today's market."</div>
+      </div>
+      <div class="card-light" style="padding:10px;display:flex;flex-direction:column;gap:6px">
+        <div class="card-title" style="font-size:9.5px;letter-spacing:1.5px">📱 COMPETITOR REFERENCE · @galatiyachtsales</div>
+        <div style="font-size:10.5px;color:var(--muted);line-height:1.5;font-style:italic">"This is why — Boating brings family together." Emotional SOLD story narrative — the format we'll use to turn transactions into trust.</div>
+        <a href="https://www.instagram.com/reel/DK5zhLLsWCH/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:var(--grad);color:#fff;font-size:10px;font-weight:700;padding:7px 14px;border-radius:100px;text-decoration:none;align-self:flex-start;margin-top:4px">▶ View Reel on Instagram</a>
+        <div style="font-size:9px;color:var(--muted);margin-top:2px">SOLD story reel · Galati Yacht Sales (198K followers)</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">WWW.GMDS.AGENCY</div>
+</div>
+
+<!-- SLIDE 11: PILLAR 04 DIVIDER -->
+<div class="slide dark" id="s11">
+  <div class="blob blob-dark-bl"></div>
+  <div class="big-num">04</div>
+  <div class="content" style="justify-content:center;gap:16px">
+    <div class="eyebrow eyebrow-dark">Content Pillar 04</div>
+    <div class="display" style="max-width:600px">International Buyers</div>
+    <div style="width:50px;height:3px;background:var(--blue);border-radius:2px"></div>
+    <p class="body-text" style="max-width:500px;font-size:13.5px">Trilingual content designed to capture Latin American and Eastern European buyers — the fastest-growing segments in US luxury yacht sales.</p>
+    <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap">
+      <span style="background:rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:600;padding:6px 14px;border-radius:100px;border:1px solid rgba(255,255,255,.2)">EN · ES · RU Content</span>
+      <span style="background:rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:600;padding:6px 14px;border-radius:100px;border:1px solid rgba(255,255,255,.2)">Carousels 60%</span>
+      <span style="background:rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:600;padding:6px 14px;border-radius:100px;border:1px solid rgba(255,255,255,.2)">Reels 40%</span>
+    </div>
+  </div>
+  <div class="footer">WWW.GMDS.AGENCY</div>
+</div>
+
+<!-- SLIDE 12: PILLAR 04 DETAIL -->
+<div class="slide light" id="s12">
+  <div class="grad-bar"></div>
+  <div class="blob blob-light-br"></div>
+  <div class="content" style="gap:16px">
+    <div class="eyebrow eyebrow-light">Pillar 04 · International Buyers</div>
+    <div class="heading" style="margin-bottom:0">What We Post</div>
+    <div class="grid-3">
+      <div class="card-light">
+        <div class="card-title">🌎 LATAM Guides</div>
+        <div class="card-body">"How to import a yacht to Colombia" — regulatory, financing &amp; logistics guides in Spanish for key markets.</div>
+      </div>
+      <div class="card-light">
+        <div class="card-title">🇺🇸 Florida Advantage</div>
+        <div class="card-body">Why buying through a Florida broker gives international buyers legal protections, financing access, and better inventory.</div>
+      </div>
+      <div class="card-light">
+        <div class="card-title">✈️ Remote Buying</div>
+        <div class="card-body">Process videos showing how LATAM clients buy yachts remotely — virtual tour, wire transfer, delivery logistics.</div>
+      </div>
+    </div>
+    <div class="card-grad">
+      <div class="card-title">ManyChat Triggers (ES · RU)</div>
+      <div class="card-body" style="font-size:12.5px">ES caption: "Comenta <strong>YATE</strong> y te enviamos nuestra guía para compradores internacionales directamente a tus DMs."<br>RU caption: "Напиши <strong>YAAXTA</strong> и получи гид для международных покупателей прямо в Direct."</div>
+    </div>
+  </div>
+  <div class="footer">WWW.GMDS.AGENCY</div>
+</div>
+
+<!-- SLIDE 13: PILLAR 05 DIVIDER -->
+<div class="slide dark" id="s13">
+  <div class="blob blob-dark-bl"></div>
+  <div class="big-num">05</div>
+  <div class="content" style="justify-content:center;gap:16px">
+    <div class="eyebrow eyebrow-dark">Content Pillar 05</div>
+    <div class="display" style="max-width:600px">Behind the Broker</div>
+    <div style="width:50px;height:3px;background:var(--purple);border-radius:2px"></div>
+    <p class="body-text" style="max-width:500px;font-size:13.5px">Human-first content that puts the broker's face and expertise on camera — the #1 trust driver for high-ticket service providers on Instagram.</p>
+    <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap">
+      <span style="background:rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:600;padding:6px 14px;border-radius:100px;border:1px solid rgba(255,255,255,.2)">Reels 70%</span>
+      <span style="background:rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:600;padding:6px 14px;border-radius:100px;border:1px solid rgba(255,255,255,.2)">Stories 20%</span>
+      <span style="background:rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:600;padding:6px 14px;border-radius:100px;border:1px solid rgba(255,255,255,.2)">Carousels 10%</span>
+    </div>
+  </div>
+  <div class="footer">WWW.GMDS.AGENCY</div>
+</div>
+
+<!-- SLIDE 14: PILLAR 05 DETAIL -->
+<div class="slide light" id="s14">
+  <div class="grad-bar"></div>
+  <div class="blob blob-light-br"></div>
+  <div class="content" style="gap:16px">
+    <div class="eyebrow eyebrow-light">Pillar 05 · Behind the Broker</div>
+    <div class="heading" style="margin-bottom:0">What We Post</div>
+    <div class="grid-3">
+      <div class="card-light">
+        <div class="card-title">📹 Day-in-the-Life Reels</div>
+        <div class="card-body">Broker on a sea trial, walking a dock, meeting a client. Raw, authentic footage that humanizes the luxury experience.</div>
+      </div>
+      <div class="card-light">
+        <div class="card-title">🎤 Talking Head Videos</div>
+        <div class="card-body">"3 mistakes first-time yacht buyers make" — direct-to-camera expertise pieces. Subtitled in EN &amp; ES.</div>
+      </div>
+      <div class="card-light">
+        <div class="card-title">🌅 Lifestyle Moments</div>
+        <div class="card-body">Yacht shows, marina events, client dinners. The aspirational lifestyle buyers are paying to access.</div>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="card-grad">
+        <div class="card-title">Why This Works</div>
+        <div class="card-body">90% of luxury buyers research their agent on social media before making contact. Broker-forward content is the deal-closer.</div>
+      </div>
+      <div class="card-grad">
+        <div class="card-title">Frequency Target</div>
+        <div class="card-body">Minimum 1 broker face-on-camera Reel per week. Non-negotiable for audience trust-building at this price point.</div>
+      </div>
+      <div class="card-light" style="padding:10px;display:flex;flex-direction:column;gap:6px">
+        <div class="card-title" style="font-size:9.5px;letter-spacing:1.5px">📱 COMPETITOR REFERENCE · @ikonicyachts</div>
+        <div style="font-size:10.5px;color:var(--muted);line-height:1.5;font-style:italic">"Why Our Clients Send Their Friends" — AJ Blackmon to camera, authentic referral story. The exact Behind the Broker format.</div>
+        <a href="https://www.instagram.com/reel/DcE0Z42zQee/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:var(--grad);color:#fff;font-size:10px;font-weight:700;padding:7px 14px;border-radius:100px;text-decoration:none;align-self:flex-start;margin-top:4px">▶ View Reel on Instagram</a>
+        <div style="font-size:9px;color:var(--muted);margin-top:2px">Broker trust reel · IKONIC Yachts · AJ Blackmon</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">WWW.GMDS.AGENCY</div>
+</div>
+
+<!-- SLIDE 15: COMPETITIVE INTEL TABLE -->
+<div class="slide light" id="s15">
+  <div class="grad-bar"></div>
+  <div class="blob blob-light-br"></div>
+  <div class="content" style="gap:14px">
+    <div class="eyebrow eyebrow-light">Competitive Analysis</div>
+    <div class="heading" style="margin-bottom:0;font-size:clamp(18px,2.2vw,28px)">Instagram Competitive Landscape</div>
+    <div style="overflow-x:auto;flex:1">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Account</th>
+            <th>Followers</th>
+            <th>Face on Camera</th>
+            <th>Trilingual</th>
+            <th>ManyChat</th>
+            <th>Reels Focus</th>
+            <th>LATAM Content</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>IKONIC Yachts</strong></td><td>26.1K</td><td><span class="check">✓ AJ &amp; Andy</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="check">✓ Strong</span></td><td><span class="cross">✗</span></td></tr>
+          <tr><td>HMY Yacht Sales</td><td>96.1K</td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
+          <tr><td>Denison Yachting</td><td>84.2K</td><td>Rarely</td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
+          <tr><td>Galati Yacht Sales</td><td>198K</td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
+          <tr><td>Northrop &amp; Johnson</td><td>74.4K</td><td>Rarely</td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
+          <tr><td>Burgess Yachts</td><td>~90K</td><td><span class="cross">✗</span></td><td>Partial</td><td><span class="cross">✗</span></td><td>Moderate</td><td>Minimal</td></tr>
+          <tr><td>Fraser Yachts</td><td>~55K</td><td>Events only</td><td>Partial</td><td><span class="cross">✗</span></td><td>Moderate</td><td>Minimal</td></tr>
+          <tr><td>Worth Ave Yachts</td><td>~8K</td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td>Low</td><td><span class="cross">✗</span></td></tr>
+          <tr><td><strong style="color:var(--royal)">Yacht Habit (Target)</strong></td><td>Growing</td><td><span class="check" style="color:var(--royal)">✓ Always</span></td><td><span class="check" style="color:var(--royal)">✓ Full</span></td><td><span class="check" style="color:var(--royal)">✓ Yes</span></td><td><span class="check" style="color:var(--royal)">✓ Primary</span></td><td><span class="check" style="color:var(--royal)">✓ Core</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="footer">WWW.GMDS.AGENCY</div>
+</div>
+
+<!-- SLIDE 16: COMPETITIVE INSIGHTS -->
+<div class="slide light" id="s16">
+  <div class="grad-bar"></div>
+  <div class="blob blob-light-br"></div>
+  <div class="content" style="gap:16px">
+    <div class="eyebrow eyebrow-light">Competitive Insights</div>
+    <div class="heading" style="margin-bottom:0">The Market Gap = Your Advantage</div>
+    <div class="grid-2" style="flex:1;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card-light" style="border-left:3px solid var(--blue)">
+          <div class="card-title">🎯 Gap #1 — Trilingual Content</div>
+          <div class="card-body">Zero major competitors produce consistent EN/ES/RU content. The entire Spanish and Russian-speaking buyer market is unclaimed.</div>
+        </div>
+        <div class="card-light" style="border-left:3px solid var(--royal)">
+          <div class="card-title">🎯 Gap #2 — Broker Identity</div>
+          <div class="card-body">Most accounts post yachts, not people. Yacht Habit's broker-forward strategy builds personal brand equity no competitor has.</div>
+        </div>
+        <div class="card-light" style="border-left:3px solid var(--purple)">
+          <div class="card-title">🎯 Gap #3 — Automation</div>
+          <div class="card-body">No competitor uses ManyChat keyword flows. Yacht Habit will capture DM leads 24/7 while competitors sleep.</div>
+        </div>
+      </div>
+      <div class="card-grad" style="height:100%">
+        <div class="card-title" style="margin-bottom:12px">Yacht Habit's 7 Unfair Advantages</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:11.5px;color:rgba(255,255,255,.9);display:flex;gap:8px;align-items:flex-start"><span style="color:var(--blue);font-weight:700">→</span>Trilingual content (EN + ES + RU)</div>
+          <div style="font-size:11.5px;color:rgba(255,255,255,.9);display:flex;gap:8px;align-items:flex-start"><span style="color:var(--blue);font-weight:700">→</span>Broker face on camera weekly</div>
+          <div style="font-size:11.5px;color:rgba(255,255,255,.9);display:flex;gap:8px;align-items:flex-start"><span style="color:var(--blue);font-weight:700">→</span>ManyChat DM automation</div>
+          <div style="font-size:11.5px;color:rgba(255,255,255,.9);display:flex;gap:8px;align-items:flex-start"><span style="color:var(--blue);font-weight:700">→</span>LATAM buyer-specific content</div>
+          <div style="font-size:11.5px;color:rgba(255,255,255,.9);display:flex;gap:8px;align-items:flex-start"><span style="color:var(--blue);font-weight:700">→</span>Transaction-proof SOLD posts</div>
+          <div style="font-size:11.5px;color:rgba(255,255,255,.9);display:flex;gap:8px;align-items:flex-start"><span style="color:var(--blue);font-weight:700">→</span>Educational carousel strategy</div>
+          <div style="font-size:11.5px;color:rgba(255,255,255,.9);display:flex;gap:8px;align-items:flex-start"><span style="color:var(--blue);font-weight:700">→</span>Structured 5-pillar content system</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">WWW.GMDS.AGENCY</div>
+</div>
+
+<!-- SLIDE 17: EDITORIAL CALENDAR DIVIDER -->
+<div class="slide dark" id="s17">
+  <div class="blob blob-dark-bl"></div>
+  <div class="content" style="justify-content:center;gap:16px">
+    <div class="eyebrow eyebrow-gold">Monthly Planning</div>
+    <div class="display" style="max-width:600px">Editorial Calendar</div>
+    <div style="width:50px;height:3px;background:#C9A84C;border-radius:2px"></div>
+    <p class="body-text" style="max-width:500px;font-size:13.5px">A structured weekly posting rhythm that maintains brand consistency, maximizes reach, and builds audience habits — 21 posts per month across all 5 pillars.</p>
+    <div style="display:flex;gap:20px;margin-top:8px;flex-wrap:wrap">
+      <div><span style="font-size:20px;font-weight:800;color:#fff">Mon</span> <span style="font-size:11px;color:rgba(255,255,255,.65)">Dream Boats Reel</span></div>
+      <div><span style="font-size:20px;font-weight:800;color:var(--blue)">Wed</span> <span style="font-size:11px;color:rgba(255,255,255,.65)">Educational Carousel</span></div>
+      <div><span style="font-size:20px;font-weight:800;color:#C9A84C">Fri</span> <span style="font-size:11px;color:rgba(255,255,255,.65)">Broker / SOLD Reel</span></div>
+    </div>
+  </div>
+  <div class="footer">WWW.GMDS.AGENCY</div>
+</div>
+
+<!-- SLIDE 18: EDITORIAL CALENDAR DETAIL -->
+<div class="slide light" id="s18">
+  <div class="grad-bar"></div>
+  <div class="blob blob-light-br"></div>
+  <div class="content" style="gap:14px">
+    <div class="eyebrow eyebrow-light">Sample Week · Editorial Calendar</div>
+    <div class="cal-grid">
+      <div class="cal-day">
+        <div class="cal-day-name">Monday</div>
+        <div class="cal-post reel">🎬 Dream Boats Reel<br><span style="font-weight:400;font-size:9px">New listing feature</span></div>
+        <div class="cal-post story">📱 Stories<br><span style="font-weight:400;font-size:9px">Poll + swipe up</span></div>
+      </div>
+      <div class="cal-day">
+        <div class="cal-day-name">Tuesday</div>
+        <div class="cal-post story">📱 Stories<br><span style="font-weight:400;font-size:9px">Behind-scenes clip</span></div>
+      </div>
+      <div class="cal-day">
+        <div class="cal-day-name">Wednesday</div>
+        <div class="cal-post carousel">🎓 Broker Intelligence<br><span style="font-weight:400;font-size:9px">Educational carousel</span></div>
+        <div class="cal-post story">📱 Stories<br><span style="font-weight:400;font-size:9px">Q&amp;A sticker</span></div>
+      </div>
+      <div class="cal-day">
+        <div class="cal-day-name">Thursday</div>
+        <div class="cal-post story">📱 Stories<br><span style="font-weight:400;font-size:9px">Market update</span></div>
+      </div>
+      <div class="cal-day">
+        <div class="cal-day-name">Friday</div>
+        <div class="cal-post reel">🎬 Behind Broker / SOLD<br><span style="font-weight:400;font-size:9px">Face-on-camera Reel</span></div>
+        <div class="cal-post story">📱 Stories<br><span style="font-weight:400;font-size:9px">Weekend boating vibes</span></div>
+      </div>
+    </div>
+    <div class="card-grad" style="margin-top:4px">
+      <div class="card-title">Weekend Strategy</div>
+      <div class="card-body" style="font-size:12px">Sat/Sun: Stories-only — lifestyle reposting, marina shots, Sunday yacht prep content. Light-touch posting that keeps the account active without burning the content calendar.</div>
+    </div>
+  </div>
+  <div class="footer">WWW.GMDS.AGENCY</div>
+</div>
+
+<!-- SLIDE 19: MANYCHAT AUTOMATIONS -->
+<div class="slide dark" id="s19">
+  <div class="blob blob-dark-bl"></div>
+  <div class="blob blob-dark-tr"></div>
+  <div class="content" style="gap:18px">
+    <div class="eyebrow eyebrow-dark">Lead Generation</div>
+    <div class="heading" style="margin-bottom:0">ManyChat DM Automations</div>
+    <p class="body-text" style="margin-bottom:4px">Cuatro keyword flows that convert Instagram comments into qualified leads automatically — 24 hours a day, 7 days a week.</p>
+    <div class="grid-4" style="margin-bottom:4px">
+      <div class="kw-card">
+        <div class="kw-tag" style="font-size:16px">BOAT</div>
+        <div class="subhead" style="color:rgba(255,255,255,.8);margin-bottom:6px">Dream Boats</div>
+        <div class="kw-desc">Comment BOAT → receives full yacht specs, asking price, and a link to book a viewing call. EN</div>
+      </div>
+      <div class="kw-card">
+        <div class="kw-tag" style="font-size:16px">SOLD</div>
+        <div class="subhead" style="color:rgba(255,255,255,.8);margin-bottom:6px">Social Proof</div>
+        <div class="kw-desc">Comment SOLD → receives recently closed listings + "What could your yacht sell for?" valuation CTA. EN</div>
+      </div>
+      <div class="kw-card">
+        <div class="kw-tag" style="font-size:16px">YATE</div>
+        <div class="subhead" style="color:rgba(255,255,255,.8);margin-bottom:6px">LATAM Buyer</div>
+        <div class="kw-desc">Comment YATE → receives international buyer guide in Spanish + direct broker contact. ES</div>
+      </div>
+      <div class="kw-card">
+        <div class="kw-tag" style="font-size:14px">YAAXTA</div>
+        <div class="subhead" style="color:rgba(255,255,255,.8);margin-bottom:6px">Russian Market</div>
+        <div class="kw-desc">Comment YAAXTA → receives international buyer guide in Russian + direct broker contact. RU</div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:14px 18px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:8px">Why ManyChat Changes Everything</div>
+      <p style="font-size:12px;color:rgba(255,255,255,.8);line-height:1.6">Instagram DMs have a 90%+ open rate vs. 20% email average. Every comment triggers an immediate, personalized response — turning passive scroll into active lead pipeline without manual work from the broker.</p>
+    </div>
+  </div>
+  <div class="footer">WWW.GMDS.AGENCY</div>
+</div>
+
+
+</div><!-- /deck -->
+
+<!-- Navigation -->
+<div class="nav-pill">
+  <button onclick="prev()" id="prev-btn" disabled>←</button>
+  <span id="counter">1 / 19</span>
+  <button onclick="next()" id="next-btn">→</button>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let cur = 0;
+
+function goTo(n) {
+  if (n < 0 || n >= total) return;
+  slides.forEach((s, i) => {
+    s.classList.remove('active', 'past');
+    if (i < n) s.classList.add('past');
+    else if (i === n) s.classList.add('active');
+  });
+  cur = n;
+  document.getElementById('counter').textContent = (n + 1) + ' / ' + total;
+  document.getElementById('progress-bar').style.width = ((n + 1) / total * 100) + '%';
+  document.getElementById('prev-btn').disabled = n === 0;
+  document.getElementById('next-btn').disabled = n === total - 1;
+}
+
+function next() { goTo(cur + 1); }
+function prev() { goTo(cur - 1); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); next(); }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); prev(); }
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = tx - e.changedTouches[0].clientX;
+  if (Math.abs(dx) > 50) dx > 0 ? next() : prev();
+}, {passive:true});
+</script>
